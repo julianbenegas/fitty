@@ -56,7 +56,13 @@ export default ((w) => {
     // now we apply the calculated styles from our previous loop
     fittiesToRedraw.forEach(f => {
       applyStyle(f);
-      markAsClean(f);
+      if ((f.previousLetterSpacing || 'normal') === f.currentLetterSpacing) {
+        markAsClean(f);
+      } else {
+        f.previousLetterSpacing = f.currentLetterSpacing
+        f.dirty = DrawState.DIRTY
+        requestRedraw()
+      }
     });
 
     // now we dispatch events for all restyled fitties
@@ -103,6 +109,7 @@ export default ((w) => {
 
     // get current font size in pixels (if we already calculated it, use the calculated version)
     f.currentFontSize = parseFloat(style.getPropertyValue('font-size'));
+    f.currentLetterSpacing = style.getPropertyValue('letter-spacing') || 'normal';
 
     // get display type and wrap mode
     f.display = style.getPropertyValue('display');
